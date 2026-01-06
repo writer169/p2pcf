@@ -2089,7 +2089,7 @@ var P2PCF = class extends import_events.EventEmitter {
     this.peerOptions = options.rtcPeerConnectionOptions || {};
     this.peerProprietaryConstraints = options.rtcPeerConnectionProprietaryConstraints || {};
     this.peerSdpTransform = options.sdpTransform || ((sdp) => sdp);
-    this.workerUrl = options.workerUrl || "https://p2pcf.minddrop.workers.dev";
+    this.workerUrl = options.workerUrl || window.location.origin;
     if (this.workerUrl.endsWith("/")) {
       this.workerUrl = this.workerUrl.substring(0, this.workerUrl.length - 1);
     }

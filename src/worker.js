@@ -1,3 +1,7 @@
+import { getAssetFromKV } from '@cloudflare/kv-asset-handler'
+import manifestJSON from '__STATIC_CONTENT_MANIFEST'
+const assetManifest = JSON.parse(manifestJSON)
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET,HEAD,POST,DELETE,OPTIONS',
@@ -10,7 +14,7 @@ const IPV6_REGEX = /(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:
 
 const RATE_LIMITING_SAMPLING_RATE = 100.0
 
-function validatePayload (headers, payload) {
+function validatePayload(headers, payload) {
   if (
     !payload.r ||
     payload.r.length < 4 ||
@@ -86,7 +90,7 @@ function validatePayload (headers, payload) {
   }
 }
 
-function getRandomString (length) {
+function getRandomString(length) {
   let result = ''
   const characters =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -98,7 +102,7 @@ function getRandomString (length) {
   return result
 }
 
-function b64toBlob (b64Data, contentType = '', sliceSize = 512) {
+function b64toBlob(b64Data, contentType = '', sliceSize = 512) {
   const byteCharacters = atob(b64Data)
   const byteArrays = []
 
@@ -118,48 +122,63 @@ function b64toBlob (b64Data, contentType = '', sliceSize = 512) {
   return blob
 }
 
-function getEntryDeleteKey (entry) {
+function getEntryDeleteKey(entry) {
   return entry[entry.length - 1]
 }
 
-function getEntryContextId (entry) {
+function getEntryContextId(entry) {
   return entry[entry.length - 2]
 }
 
-function getEntryPackages (entry) {
+function getEntryPackages(entry) {
   return entry[entry.length - 3]
 }
 
-function getEntryTimestamp (entry) {
+function getEntryTimestamp(entry) {
   return entry[entry.length - 4]
 }
 
-function getEntrySessionId (entry) {
+function getEntrySessionId(entry) {
   return entry[0]
 }
 
-function getEntryPayloadLength (entry) {
+function getEntryPayloadLength(entry) {
   return entry.length - 3
 }
 
-async function handleGet (request, env) {
-  const hasStore = !!getStore(env)
-
-  return new Response(
-    `<html><body style="font-size: 24px; padding: 18px; font-family: Arial, sans-serif"">Hello from P2PCF<br/><div style=\"line-height: 28px; margin-top: 8px; font-size: 0.8em\">${
-      hasStore
-        ? '&#128077; R2 bucket is configured properly, ready to serve.'
-        : '&#10060; Couldn\'t find a configured R2 bucket.<br/>Make sure you <a href="https://github.com/gfodor/p2pcf/blob/master/INSTALL.md#set-up-the-r2-bucket" target="_blank">created a bucket</a> and <a href="https://github.com/gfodor/p2pcf/blob/master/INSTALL.md#bind-the-worker-to-r2" target="_blank">connected the worker to it</a>.'
-    }</div></body></html>`,
-    {
-      headers: {
-        'Content-Type': 'text/html'
-      }
+async function handleGet(request, env, context) {
+  try {
+    const event = {
+      request,
+      waitUntil: context.waitUntil.bind(context)
     }
-  )
+    const options = {
+      ASSET_NAMESPACE: env.__STATIC_CONTENT,
+      ASSET_MANIFEST: assetManifest
+    }
+
+    // Serve index.html for root
+    const url = new URL(request.url)
+    if (url.pathname === '/') {
+      // getAssetFromKV naturally serves index.html if it exists?
+      // it maps to /index.html usually.
+    }
+
+    return await getAssetFromKV(event, options)
+  } catch (e) {
+    if (e instanceof Error && e.message.includes('could not find')) {
+      // Fallback to serving index.html for SPA if needed, or 404
+      // For now, let's try serving index.html if 404 and it's a navigation?
+      // Or just return the old status page if it's not a known asset?
+      // But the goal is to serve the app.
+      // Let's just return 404 text or the error.
+      return new Response(`Not Found: ${e.message}`, { status: 404 })
+    }
+    return new Response(`Server Error: ${e.message}`, { status: 500 })
+  }
 }
 
-async function handleOptions (request, env) {
+async function handleOptions(request, env) {
   const headers = request.headers
 
   if (
@@ -188,7 +207,7 @@ async function handleOptions (request, env) {
   }
 }
 
-async function lookupEntries (roomId, store) {
+async function lookupEntries(roomId, store) {
   let maxIndex = -1
   const maxIndexEntry = await store.get(`rooms/${roomId}/max_index`)
 
@@ -221,7 +240,7 @@ async function lookupEntries (roomId, store) {
   return [entries, maxIndex]
 }
 
-function getStore (env) {
+function getStore(env) {
   let store = null
 
   for (const obj of Object.values(env)) {
@@ -234,7 +253,7 @@ function getStore (env) {
   return store
 }
 
-async function handleDelete (request, env, context) {
+async function handleDelete(request, env, context) {
   const headers = { ...corsHeaders, Vary: 'Origin' }
   const payload = await request.json()
 
@@ -292,7 +311,7 @@ async function handleDelete (request, env, context) {
   return new Response('No delete key', { status: 404, headers })
 }
 
-async function handlePost (request, env, context) {
+async function handlePost(request, env, context) {
   const headers = { ...corsHeaders, Vary: 'Origin' }
 
   const payload = await request.json()
@@ -530,10 +549,10 @@ async function handlePost (request, env, context) {
 
             console.log(
               'Vacuumed room ' +
-                roomId +
-                '. Removed ' +
-                (removed + 1) +
-                ' keys.'
+              roomId +
+              '. Removed ' +
+              (removed + 1) +
+              ' keys.'
             )
           }
 
@@ -546,7 +565,7 @@ async function handlePost (request, env, context) {
   return new Response(JSON.stringify(responseData), { status: 200, headers })
 }
 
-async function getResponseIfDisallowed (request, env) {
+async function getResponseIfDisallowed(request, env) {
   // No CORS header, so can't do anything
   const origin = request.headers.get('origin')
   if (!origin) return null
@@ -594,15 +613,80 @@ async function getResponseIfDisallowed (request, env) {
   }
 }
 
+async function handleTurnCredentials(env) {
+  const headers = { ...corsHeaders, 'Content-Type': 'application/json' }
+
+  // Check if Cloudflare TURN credentials are configured
+  if (!env.CLOUDFLARE_ACCOUNT_ID || !env.CLOUDFLARE_API_TOKEN ||
+    !env.CLOUDFLARE_TURN_KEY_ID) {
+    console.warn('Cloudflare TURN credentials not configured, returning empty array')
+    return new Response(JSON.stringify({ iceServers: [] }), {
+      status: 200,
+      headers
+    })
+  }
+
+  try {
+    const ttl = 86400 // 24 hours
+    const turnUrl = `https://rtc.live.cloudflare.com/v1/turn/keys/${env.CLOUDFLARE_TURN_KEY_ID}/credentials/generate`
+
+    const response = await fetch(turnUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.CLOUDFLARE_API_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ ttl })
+    })
+
+    if (!response.ok) {
+      console.error('Failed to fetch TURN credentials:', response.status, await response.text())
+      return new Response(JSON.stringify({ iceServers: [] }), {
+        status: 200,
+        headers
+      })
+    }
+
+    const data = await response.json()
+
+    // Format response to match WebRTC RTCIceServer format
+    const iceServers = data.iceServers.urls.map(url => ({
+      urls: url,
+      username: data.iceServers.username,
+      credential: data.iceServers.credential
+    }))
+
+    return new Response(JSON.stringify({ iceServers }), {
+      status: 200,
+      headers
+    })
+  } catch (e) {
+    console.error('Error generating TURN credentials:', e)
+    return new Response(JSON.stringify({ iceServers: [] }), {
+      status: 200,
+      headers
+    })
+  }
+}
+
 export default {
-  async fetch (request, env, context) {
+
+  async fetch(request, env, context) {
     const disallowedResponse = await getResponseIfDisallowed(request, env)
 
     if (disallowedResponse) {
       return disallowedResponse
     }
 
+    const url = new URL(request.url)
+
+    // Handle TURN credentials endpoint
+    if (url.pathname === '/api/turn/credentials' && request.method === 'GET') {
+      return handleTurnCredentials(env)
+    }
+
     if (request.method === 'GET') {
+
       return handleGet(request, env, context)
     }
 

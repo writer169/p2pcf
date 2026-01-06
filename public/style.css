@@ -1,0 +1,615 @@
+:root {
+    --bg-color: #0d1117;
+    --text-color: #f0f6fc;
+    --primary-color: #238636;
+    --accent-color: #58a6ff;
+    --secondary-bg: #161b22;
+    --glass-bg: rgba(22, 27, 34, 0.7);
+    --glass-border: rgba(48, 54, 61, 0.7);
+    --danger-color: #da3633;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Landing Page */
+#landing-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    background: radial-gradient(circle at top right, #1f2937, var(--bg-color));
+    z-index: 10;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    transition: opacity 0.5s ease;
+}
+
+.landing-container {
+    text-align: center;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    padding: 3rem;
+    border-radius: 24px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    max-width: 400px;
+    width: 90%;
+    animation: scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+h1 {
+    margin-bottom: 2rem;
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, #58a6ff, #238636);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+}
+
+.input-group {
+    margin-bottom: 1.5rem;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    background: rgba(13, 17, 23, 0.6);
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+input[type="text"]:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3);
+    background: rgba(13, 17, 23, 0.9);
+}
+
+button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.3, 0, 0.5, 1);
+    width: 100%;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(35, 134, 54, 0.4);
+}
+
+button:hover {
+    background-color: #2ea043;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(35, 134, 54, 0.6);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* App Main Interface */
+#app-container {
+    display: flex;
+    height: 100vh;
+    height: 100dvh;
+    width: 100%;
+    position: relative;
+    background: radial-gradient(circle at center, #161b22, #0d1117);
+}
+
+/* Video Grid */
+#video-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem;
+    /* padding-top: max(1rem, env(safe-area-inset-top)); removed as per user request */
+    padding-bottom: 5rem;
+    /* Space for controls */
+    overflow-y: auto;
+    align-content: center;
+    justify-content: center;
+}
+
+video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 16px;
+    background: #000;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    max-height: 100dvh;
+    transition: transform 0.3s ease;
+}
+
+/* Controls Bar */
+#controls-bar {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1rem;
+    background: rgba(22, 27, 34, 0.85);
+    backdrop-filter: blur(16px);
+    padding: 0.8rem 1.5rem;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    z-index: 100;
+    animation: fadeIn 0.5s ease-out 0.5s backwards;
+}
+
+.control-btn {
+    background: rgba(255, 255, 255, 0.05);
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: var(--text-color);
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-3px);
+}
+
+.control-btn.active {
+    background: var(--primary-color);
+    box-shadow: 0 0 15px rgba(35, 134, 54, 0.5);
+}
+
+.control-btn.danger {
+    background: var(--danger-color);
+    box-shadow: 0 0 15px rgba(218, 54, 51, 0.4);
+}
+
+.control-btn.danger:hover {
+    background: #f85149;
+}
+
+/* Sidebar (Chat) */
+#sidebar {
+    width: 360px;
+    background: rgba(13, 17, 23, 0.95);
+    backdrop-filter: blur(20px);
+    border-left: 1px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    z-index: 6;
+    transform: translateX(100%);
+    box-shadow: -5px 0 30px rgba(0, 0, 0, 0.5);
+}
+
+#sidebar.open {
+    transform: translateX(0);
+}
+
+#chat-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--glass-border);
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(22, 27, 34, 0.5);
+}
+
+#chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    scroll-behavior: smooth;
+}
+
+.message {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 10px 14px;
+    border-radius: 14px;
+    border-bottom-left-radius: 2px;
+    font-size: 0.95rem;
+    word-break: break-word;
+    max-width: 85%;
+    line-height: 1.4;
+    animation: fadeIn 0.3s ease;
+}
+
+.message.self {
+    align-self: flex-end;
+    background: #1f6feb;
+    /* Blue like iMessage/GitHub */
+    border: none;
+    border-bottom-left-radius: 14px;
+    border-bottom-right-radius: 2px;
+}
+
+.message img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 5px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.message img:hover {
+    transform: scale(1.02);
+}
+
+#chat-input-area {
+    padding: 1rem;
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    gap: 0.8rem;
+    background: rgba(22, 27, 34, 0.5);
+}
+
+.file-upload-label {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 8px;
+    color: var(--text-color);
+    transition: background 0.2s;
+}
+
+.file-upload-label:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+#msg-input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid transparent;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+#msg-input:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--accent-color);
+}
+
+#send-btn {
+    width: auto;
+    padding: 0 14px;
+    background: transparent;
+    color: var(--accent-color);
+    box-shadow: none;
+}
+
+#send-btn:hover {
+    transform: scale(1.1);
+    background: transparent;
+    box-shadow: none;
+}
+
+/* Toast/Notification */
+#toast {
+    position: absolute;
+    top: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-color);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    z-index: 20;
+    transform: translate(-50%, -20px);
+}
+
+#toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+/* Hidden elements */
+.hidden {
+    display: none !important;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    #video-grid {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+    }
+
+    #controls-bar {
+        padding: 0.5rem 1rem;
+        width: 95%;
+        justify-content: space-between;
+        bottom: 20px;
+        /* Force bottom */
+        position: fixed;
+        /* Ensure it stays fixed */
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 100;
+        /* High z-index */
+    }
+
+    .control-btn {
+        width: 42px;
+        height: 42px;
+    }
+
+    #sidebar {
+        width: 100%;
+        z-index: 101;
+        /* Above controls */
+    }
+}
+
+/* Landscape on Mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    #app-container {
+        flex-direction: row;
+    }
+
+    #video-grid {
+        padding: 0;
+        grid-template-columns: 1fr;
+        /* Full width usually better for 1-on-1 */
+    }
+
+    video {
+        max-height: 100vh;
+        border-radius: 0;
+    }
+
+    #controls-bar {
+        bottom: 10px;
+        width: auto;
+        padding: 0.5rem 1rem;
+        border-radius: 30px;
+        /* Keep it at bottom center or slightly transparent */
+        background: rgba(0, 0, 0, 0.6);
+        /* Darker for better visibility */
+        backdrop-filter: blur(5px);
+        z-index: 100;
+        backdrop-filter: blur(5px);
+        transform: translateX(-50%);
+        left: 50%;
+        right: auto;
+        flex-direction: row;
+        /* keep horizontal in landscape? User implied bottom controls. */
+    }
+
+    /* Adjust PiP location */
+    .video-container.pip,
+    .video-container.minimized {
+        bottom: 80px;
+        /* Above controls */
+        right: 20px;
+    }
+}
+
+/* --- Layout Modes --- */
+
+/* --- Layout Modes --- */
+
+/* Pinned Video Mode (Grid Container) */
+#video-grid.has-pinned {
+    display: grid;
+    /* Ensure it stays grid */
+    padding: 0;
+    margin: 0;
+    grid-template-columns: 1fr;
+    /* Force 1 column */
+    height: 100dvh;
+    /* Enforce full height */
+    align-content: start;
+    /* User suggestion: Disable center alignment */
+    gap: 0;
+    padding-bottom: 0;
+    overflow: hidden;
+}
+
+/* Pinned Video Element */
+.video-container.pinned {
+    /* Just a normal grid item now, filling the space */
+    width: 100%;
+    height: 100dvh;
+    /* Force full height */
+    z-index: 1;
+    /* position: absolute; REMOVED: Match "Alone" state (normal flow) */
+    /* top: 0; */
+    /* left: 0; */
+}
+
+.video-container.pinned video {
+    object-fit: cover;
+    /* Ensure it fills */
+    border-radius: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    max-height: 100dvh !important;
+    /* User suggestion: Override the 80vh limit */
+}
+
+/* Optional Toggle Button for Fit/Fill */
+.fit-toggle-btn {
+    position: absolute;
+    top: 50px;
+    /* Below minimize btn if any */
+    right: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.video-container:hover .fit-toggle-btn {
+    opacity: 1;
+}
+
+/* Picture-in-Picture (PiP) Element (Local Video mostly) */
+.video-container.pip {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    /* User request: Move to top-left */
+    /* bottom: 100px; REMOVED */
+    /* right: 20px; REMOVED */
+    width: 160px;
+    /* Smaller for mobile */
+    height: auto;
+    aspect-ratio: 16/9;
+    z-index: 50;
+    /* Above pinned video (1) and below sidebar (101) */
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: grab;
+}
+
+.video-container.pip:hover {
+    transform: scale(1.05);
+}
+
+.video-container.pip video {
+    box-shadow: none;
+    border-radius: 10px;
+}
+
+/* Minimized Local Video */
+.video-container.minimized {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    top: 20px;
+    left: 20px;
+    /* Match PiP location */
+    /* bottom: 100px; REMOVED */
+    /* right: 20px; REMOVED */
+    border: 2px solid var(--accent-color);
+    z-index: 50;
+}
+
+.video-container.minimized video {
+    display: none;
+}
+
+.video-container.minimized::after {
+    content: "📷";
+    /* Placeholder icon */
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: var(--secondary-bg);
+    color: white;
+}
+
+/* Minimize Toggle Button */
+.minimize-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.video-container:hover .minimize-btn {
+    opacity: 1;
+}
+
+.video-container {
+    position: relative;
+    /* Ensure absolute children are positioned relative to this */
+    transition: all 0.5s ease;
+}

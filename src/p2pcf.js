@@ -111,14 +111,13 @@ const isFirefox = !!(navigator?.userAgent.toLowerCase().indexOf('firefox') > -1)
 const hexToBase64 = hex => arrayBufferToBase64(hexToBytes(hex))
 const base64ToHex = b64 => arrayBufferToHex(base64ToArrayBuffer(b64))
 
-function createSdp (isOffer, iceUFrag, icePwd, dtlsFingerprintBase64) {
+function createSdp(isOffer, iceUFrag, icePwd, dtlsFingerprintBase64) {
   const dtlsHex = base64ToHex(dtlsFingerprintBase64)
   let dtlsFingerprint = ''
 
   for (let i = 0; i < dtlsHex.length; i += 2) {
-    dtlsFingerprint += `${dtlsHex[i]}${dtlsHex[i + 1]}${
-      i === dtlsHex.length - 2 ? '' : ':'
-    }`.toUpperCase()
+    dtlsFingerprint += `${dtlsHex[i]}${dtlsHex[i + 1]}${i === dtlsHex.length - 2 ? '' : ':'
+      }`.toUpperCase()
   }
 
   const sdp = [
@@ -191,7 +190,7 @@ const parseCandidate = line => {
 }
 
 export default class P2PCF extends EventEmitter {
-  constructor (clientId = '', roomId = '', options = {}) {
+  constructor(clientId = '', roomId = '', options = {}) {
     super()
 
     if (!clientId || clientId.length < 4) {
@@ -273,16 +272,42 @@ export default class P2PCF extends EventEmitter {
     this.contextId = window.history.state._p2pcfContextId
   }
 
-  async _init () {
+  async _getCloudflareTurnCredentials() {
+    try {
+      const response = await fetch(`${this.workerUrl}/api/turn/credentials`)
+      if (!response.ok) {
+        console.warn('Failed to fetch Cloudflare TURN credentials:', response.status)
+        return null
+      }
+      const data = await response.json()
+      return data.iceServers || []
+    } catch (e) {
+      console.warn('Error fetching Cloudflare TURN credentials:', e)
+      return null
+    }
+  }
+
+  async _init() {
     if (this.dtlsCert === null) {
       this.dtlsCert = await this.wrtc.RTCPeerConnection.generateCertificate({
         name: 'ECDSA',
         namedCurve: 'P-256'
       })
     }
+
+    // Fetch Cloudflare TURN credentials
+    const cloudflareTurn = await this._getCloudflareTurnCredentials()
+    if (cloudflareTurn && cloudflareTurn.length > 0) {
+      // Prepend Cloudflare TURN servers (higher priority than default TURN)
+      this.turnIceServers = [...cloudflareTurn, ...this.turnIceServers]
+      console.log('✓ Loaded Cloudflare TURN servers:', cloudflareTurn.length)
+    } else {
+      console.log('⚠ Cloudflare TURN not available, using fallback TURN servers')
+    }
   }
 
-  async _step (finish = false) {
+
+  async _step(finish = false) {
     const {
       sessionId,
       clientId,
@@ -335,7 +360,7 @@ export default class P2PCF extends EventEmitter {
       const expired =
         this.dataTimestamp === null ||
         now - this.dataTimestamp >=
-          stateExpirationIntervalMs - stateHeartbeatWindowMs
+        stateExpirationIntervalMs - stateHeartbeatWindowMs
 
       const packagesChanged = this.lastPackages !== JSON.stringify(packages)
       let includePackages = false
@@ -458,7 +483,7 @@ export default class P2PCF extends EventEmitter {
     }
   }
 
-  _handleWorkerResponse (
+  _handleWorkerResponse(
     localPeerData,
     localDtlsFingerprintBase64,
     localPackages,
@@ -757,9 +782,8 @@ export default class P2PCF extends EventEmitter {
             )
 
             for (let i = 0; i < remoteReflexiveIps.length; i++) {
-              remoteSdp += `a=candidate:0 1 udp ${i + 1} ${
-                remoteReflexiveIps[i]
-              } 30000 typ srflx\r\n`
+              remoteSdp += `a=candidate:0 1 udp ${i + 1} ${remoteReflexiveIps[i]
+                } 30000 typ srflx\r\n`
             }
 
             if (!delaySetRemoteUntilReceiveCandidates) {
@@ -830,7 +854,7 @@ export default class P2PCF extends EventEmitter {
   /**
    * Connect to network and start discovering peers
    */
-  async start () {
+  async start() {
     this.startedAtTimestamp = Date.now()
     await this._init()
 
@@ -882,7 +906,7 @@ export default class P2PCF extends EventEmitter {
     }
   }
 
-  _removePeer (peer, destroy = false) {
+  _removePeer(peer, destroy = false) {
     const { packageReceivedFromPeers, packages, peers } = this
     if (!peers.has(peer.id)) return
 
@@ -904,7 +928,7 @@ export default class P2PCF extends EventEmitter {
    * @param string msg Message to send
    * @param integer msgID ID of message if it's a response to a previous message
    */
-  send (peer, msg) {
+  send(peer, msg) {
     if (!peer.connected) return
 
     // if leading byte is zero
@@ -971,7 +995,7 @@ export default class P2PCF extends EventEmitter {
     }
   }
 
-  broadcast (msg) {
+  broadcast(msg) {
     for (const peer of this.peers.values()) {
       this.send(peer, msg)
     }
@@ -980,7 +1004,7 @@ export default class P2PCF extends EventEmitter {
   /**
    * Destroy object
    */
-  destroy () {
+  destroy() {
     if (this._step) {
       this._step(true)
     }
@@ -1012,7 +1036,7 @@ export default class P2PCF extends EventEmitter {
    * Handle msg chunks. Returns false until the last chunk is received. Finally returns the entire msg
    * @param object data
    */
-  _chunkHandler (data, messageId, chunkId) {
+  _chunkHandler(data, messageId, chunkId) {
     let target = null
 
     if (!this.msgChunks.has(messageId)) {
@@ -1038,7 +1062,7 @@ export default class P2PCF extends EventEmitter {
     return target.buffer
   }
 
-  _updateConnectedSessions () {
+  _updateConnectedSessions() {
     this.connectedSessions.length = 0
 
     for (const [sessionId, peer] of this.peers) {
@@ -1049,7 +1073,7 @@ export default class P2PCF extends EventEmitter {
     }
   }
 
-  async _getNetworkSettings () {
+  async _getNetworkSettings() {
     await this._init()
 
     let dtlsFingerprint = null
@@ -1124,7 +1148,7 @@ export default class P2PCF extends EventEmitter {
     return [udpEnabled, isSymmetric, reflexiveIps, dtlsFingerprint]
   }
 
-  _handlePeerError (peer, err) {
+  _handlePeerError(peer, err) {
     if (
       err.errorDetail === 'sctp-failure' &&
       err.message.indexOf('User-Initiated Abort') >= 0
@@ -1135,7 +1159,7 @@ export default class P2PCF extends EventEmitter {
     console.error(err)
   }
 
-  _checkForSignalOrEmitMessage (peer, msg) {
+  _checkForSignalOrEmitMessage(peer, msg) {
     if (msg.byteLength < SIGNAL_MESSAGE_HEADER_WORDS.length * 2) {
       this.emit('msg', peer, msg)
       return
@@ -1162,7 +1186,7 @@ export default class P2PCF extends EventEmitter {
     peer.signal(payload)
   }
 
-  _wireUpCommonPeerEvents (peer) {
+  _wireUpCommonPeerEvents(peer) {
     peer.on('connect', () => {
       this.emit('peerconnect', peer)
 

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>P2P Cyber Link | Secure Video Calls</title>
+  <meta name="description" content="Secure, peer-to-peer video calling directly in your browser. No sign-up required.">
+  <meta name="keywords" content="webrtc, p2p, video call, secure, private, browser">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="P2P Cyber Link">
+  <meta property="og:description" content="Secure, peer-to-peer video calling. Join a room now!">
+  <meta property="og:type" content="website">
+
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Material Icons for Buttons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+<body>
+
+  <!-- Landing Page -->
+  <div id="landing-page">
+    <div class="landing-container">
+      <h1>P2P Video Link</h1>
+      <div class="input-group">
+        <input type="text" id="room-input" placeholder="Enter Room ID (Optional)">
+      </div>
+      <button id="join-btn">Start / Join Call</button>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="app-container" class="hidden">
+    <div id="video-grid">
+      <!-- Videos will be injected here -->
+    </div>
+
+    <div id="controls-bar">
+      <button class="control-btn" id="mic-btn" title="Toggle Mic">
+        <span class="material-icons">mic</span>
+      </button>
+      <button class="control-btn" id="cam-btn" title="Toggle Camera">
+        <span class="material-icons">videocam</span>
+      </button>
+      <button class="control-btn" id="hd-btn" title="Toggle HD Quality" style="display: none;">
+        <!-- Removed per user request -->
+        <span class="material-icons">hd</span>
+      </button>
+      <button class="control-btn" id="flip-btn" title="Switch Camera" style="display: none;">
+        <span class="material-icons">flip_camera_ios</span>
+      </button>
+      <button class="control-btn" id="share-btn" title="Share Screen">
+        <span class="material-icons">screen_share</span>
+      </button>
+      <button class="control-btn" id="chat-toggle-btn" title="Chat">
+        <span class="material-icons">chat</span>
+      </button>
+      <button class="control-btn" id="invite-btn" title="Copy Invite Link">
+        <span class="material-icons">content_copy</span>
+      </button>
+      <button class="control-btn" id="fs-btn" title="Toggle Fullscreen">
+        <span class="material-icons">fullscreen</span>
+      </button>
+      <button class="control-btn danger" id="leave-btn" title="Leave Call">
+        <span class="material-icons">call_end</span>
+      </button>
+    </div>
+
+    <!-- Right Sidebar for Chat -->
+    <div id="sidebar">
+      <div id="chat-header">
+        <span>Room Chat</span>
+        <button id="close-chat" style="width:auto; padding:5px; background:transparent;"><span
+            class="material-icons">close</span></button>
+      </div>
+      <div id="chat-messages">
+        <div class="message">Welcome to the secure room!</div>
+      </div>
+      <div id="chat-input-area">
+        <label for="img-upload" class="file-upload-label" title="Send Image">
+          <span class="material-icons">image</span>
+        </label>
+        <input type="file" id="img-upload" accept="image/*" class="hidden">
+        <input type="text" id="msg-input" placeholder="Type a message...">
+        <button id="send-btn" style="width: auto; padding: 10px;"><span class="material-icons">send</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast">Link Copied!</div>
+
+  <script type="module" src="p2pcf.js"></script>
+  <script type="module" src="index.js"></script>
+</body>
+
+</html>
